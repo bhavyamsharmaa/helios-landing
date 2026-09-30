@@ -17,6 +17,8 @@ export function FooterCta() {
 
         <a
           href={CONSOLE_URL}
+          target="_blank"
+          rel="noreferrer"
           className="group mt-8 inline-flex items-center gap-1.5 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white shadow-[0_0_30px_-8px_var(--color-accent)] transition-transform hover:scale-[1.03]"
         >
           Get Started
