@@ -6,6 +6,8 @@ import {
   SlidersHorizontal,
   type LucideIcon,
 } from 'lucide-react'
+import { Reveal } from './Reveal'
+import { SpotlightCard } from './SpotlightCard'
 
 type Feature = {
   icon: LucideIcon
@@ -50,7 +52,7 @@ export function Features() {
   return (
     <section className="px-6 py-24">
       <div className="mx-auto max-w-6xl">
-        <div className="mx-auto max-w-2xl text-center">
+        <Reveal className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
             Everything a release process needs
           </h2>
@@ -58,22 +60,21 @@ export function Features() {
             A control plane built for the moment things go wrong — and the
             discipline to know what actually worked.
           </p>
-        </div>
+        </Reveal>
 
         <div className="mt-16 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map(({ icon: Icon, title, description }) => (
-            <div
-              key={title}
-              className="rounded-2xl border border-border bg-surface p-6 transition-colors hover:border-accent/40"
-            >
-              <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent">
-                <Icon className="h-5 w-5" strokeWidth={2} />
-              </div>
-              <h3 className="mt-5 text-base font-semibold">{title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted">
-                {description}
-              </p>
-            </div>
+          {FEATURES.map(({ icon: Icon, title, description }, i) => (
+            <Reveal key={title} delay={(i % 3) * 80 + Math.floor(i / 3) * 80} className="h-full">
+              <SpotlightCard className="h-full p-6">
+                <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-accent/10 text-accent transition-transform duration-300 hoverable:group-hover:-translate-y-1">
+                  <Icon className="h-5 w-5" strokeWidth={2} />
+                </div>
+                <h3 className="mt-5 text-base font-semibold">{title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted">
+                  {description}
+                </p>
+              </SpotlightCard>
+            </Reveal>
           ))}
         </div>
       </div>

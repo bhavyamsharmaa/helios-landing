@@ -1,5 +1,8 @@
 @import 'tailwindcss';
 
+/* Mouse-like devices only: touch screens never get sticky hover effects. */
+@custom-variant hoverable (@media (hover: hover) and (pointer: fine));
+
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
 
@@ -11,6 +14,8 @@
   --color-muted: #9a99ab;
   --color-accent: #7c5cff;
   --color-accent-2: #a78bfa;
+  /* Primary button fill: white text on #7c5cff is only 4.35:1, this is 5.56:1 (4.58:1 at the peak of the footer sweep). */
+  --color-accent-btn: #6a4ee0;
 }
 
 body {
@@ -18,4 +23,285 @@ body {
   color: var(--color-fg);
   font-feature-settings: 'ss01' 1;
   -webkit-font-smoothing: antialiased;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--color-accent-2);
+  outline-offset: 3px;
+}
+
+/* ------------------------------------------------------------------ *
+ * Everything below animates transform and opacity only (plus a
+ * gradient that is moved by transforming its element).
+ * ------------------------------------------------------------------ */
+
+/* ---------- Hero entrance (CSS only, so it can never leave content hidden) ---------- */
+@keyframes rise {
+  from { opacity: 0; transform: translate3d(0, 20px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.rise {
+  animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+
+/* ---------- Aurora ---------- */
+.aurora { animation: fade-in 1.8s ease both; }
+.aurora-blob { will-change: transform; }
+.blob-violet { background: radial-gradient(closest-side, rgb(124 92 255 / 0.3), rgb(124 92 255 / 0.1) 55%, transparent); }
+.blob-indigo { background: radial-gradient(closest-side, rgb(99 102 241 / 0.24), rgb(99 102 241 / 0.08) 55%, transparent); }
+.blob-violet-soft { background: radial-gradient(closest-side, rgb(124 92 255 / 0.2), rgb(124 92 255 / 0.07) 55%, transparent); }
+.blob-magenta { background: radial-gradient(closest-side, rgb(162 28 175 / 0.14), rgb(162 28 175 / 0.05) 55%, transparent); }
+
+@keyframes aurora-1 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(9%, 7%, 0) scale(1.12); }
+  66% { transform: translate3d(-4%, 12%, 0) scale(0.95); }
+}
+@keyframes aurora-2 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.05); }
+  40% { transform: translate3d(-10%, 8%, 0) scale(0.92); }
+  75% { transform: translate3d(5%, -6%, 0) scale(1.14); }
+}
+@keyframes aurora-3 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(0.95); }
+  50% { transform: translate3d(7%, -9%, 0) scale(1.15); }
+}
+@keyframes aurora-4 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  45% { transform: translate3d(-12%, -7%, 0) scale(1.18); }
+}
+.aurora-1 { animation: aurora-1 34s ease-in-out infinite; }
+.aurora-2 { animation: aurora-2 28s ease-in-out -9s infinite; }
+.aurora-3 { animation: aurora-3 38s ease-in-out -18s infinite; }
+.aurora-4 { animation: aurora-4 22s ease-in-out -5s infinite; }
+.aurora[data-paused='true'] .aurora-blob { animation-play-state: paused; }
+
+.aurora-vignette {
+  background: radial-gradient(ellipse 95% 85% at 50% 38%, transparent 38%, rgb(8 8 12 / 0.92) 100%);
+}
+/* Fades the hero out into the next section. */
+.aurora-fade {
+  background: linear-gradient(to bottom, transparent 50%, var(--color-ink) 100%);
+}
+/* Soft dark pool behind the hero text: keeps muted copy above 4.5:1 even where blobs overlap. */
+.hero-scrim {
+  background: radial-gradient(ellipse closest-side, rgb(8 8 12 / 0.62) 0 78%, transparent 100%);
+}
+
+/* ---------- Scroll reveal ---------- */
+.reveal {
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+/* Hidden only once the observer has confirmed it is running; entering this state is instant. */
+.reveal[data-phase='waiting'] {
+  opacity: 0;
+  transform: translate3d(0, 20px, 0);
+  transition: none;
+}
+
+/* ---------- Feature card spotlight ---------- */
+.spot-glow-blob {
+  background: radial-gradient(closest-side, rgb(124 92 255 / 0.16), transparent);
+}
+.spot-ring-blob {
+  background: radial-gradient(closest-side, rgb(167 139 250 / 0.95), rgb(124 92 255 / 0.5) 45%, transparent);
+}
+.spot-ring {
+  display: none;
+  padding: 1px;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+}
+@supports ((-webkit-mask-composite: xor) or (mask-composite: exclude)) {
+  @media (hover: hover) and (pointer: fine) {
+    .spot-ring { display: block; }
+  }
+}
+/* No mask-composite: a plain 1px border highlight instead of the cursor-following one. */
+@supports not ((-webkit-mask-composite: xor) or (mask-composite: exclude)) {
+  @media (hover: hover) and (pointer: fine) {
+    .spot-card:hover { border-color: rgb(124 92 255 / 0.55); }
+  }
+}
+
+/* ---------- How it works ---------- */
+.hiw-fill-h { transform: scaleX(1); transform-origin: left; }
+.hiw-fill-v { transform: scaleY(1); transform-origin: top; }
+.hiw[data-phase='waiting'] .hiw-fill-h { transform: scaleX(0); }
+.hiw[data-phase='waiting'] .hiw-fill-v { transform: scaleY(0); }
+.hiw[data-phase='done'] .hiw-fill-h {
+  transition: transform 1.6s cubic-bezier(0.65, 0, 0.35, 1) 0.2s;
+}
+.hiw[data-phase='done'] .hiw-fill-v {
+  transition: transform var(--dur, 0.8s) cubic-bezier(0.65, 0, 0.35, 1) var(--delay, 0s);
+}
+.hiw-lit { opacity: 1; }
+.hiw[data-phase='waiting'] .hiw-lit { opacity: 0; }
+.hiw[data-phase='done'] .hiw-lit { transition: opacity 0.5s ease var(--lit-delay, 0s); }
+.hiw-pulse { opacity: 0; }
+.hiw[data-phase='done'] .hiw-pulse { animation: hiw-pulse 0.9s ease-out var(--lit-delay, 0s) forwards; }
+@keyframes hiw-pulse {
+  from { transform: scale(1); opacity: 0.6; }
+  to { transform: scale(1.8); opacity: 0; }
+}
+
+/* ---------- Footer CTA ---------- */
+.glow-footer {
+  background: radial-gradient(closest-side, rgb(124 92 255 / 0.22), rgb(124 92 255 / 0.08) 55%, transparent);
+  animation: breathe 9s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%, 100% { transform: scale(0.92); opacity: 0.65; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+[data-paused='true'] .glow-footer,
+[data-paused='true'] .btn-sweep { animation-play-state: paused; }
+
+/* ---------- Buttons ---------- */
+.btn-lift {
+  /* Unlayered CSS beats Tailwind's transition-colors, so the colour transitions are listed here too. */
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+.btn-lift:active { transform: translate3d(0, 0, 0); }
+.btn-primary { position: relative; isolation: isolate; }
+/* The "brighter glow" is a separate layer whose opacity is animated, so no shadow is ever repainted. */
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  box-shadow:
+    0 0 46px -4px var(--color-accent),
+    0 12px 32px -12px var(--color-accent);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .btn-lift:hover { transform: translate3d(0, -2px, 0); }
+  .btn-primary:hover::before { opacity: 1; }
+}
+.btn-sweep-clip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+/* Peak is 10% white so white button text stays above 4.5:1 even mid-sweep. */
+.btn-sweep {
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: 0;
+  width: 45%;
+  background: linear-gradient(100deg, transparent 0%, rgb(255 255 255 / 0.1) 50%, transparent 100%);
+  transform: translate3d(-160%, 0, 0) skewX(-20deg);
+  animation: sweep 6.5s ease-in-out infinite;
+}
+@keyframes sweep {
+  0%, 62% { transform: translate3d(-160%, 0, 0) skewX(-20deg); }
+  86%, 100% { transform: translate3d(360%, 0, 0) skewX(-20deg); }
+}
+
+/* ---------- Hero mock console: a looping ~9s story ---------- */
+/* Base styles are the FINAL state (flag killed, banner gone, chip showing): that is what
+   reduced-motion users see, and the loop starts and ends in the same quiet state. */
+.mock-thumb { transform: translate3d(0, 0, 0); animation: mock-thumb 9s infinite; }
+.mock-track { opacity: 0; animation: mock-track 9s infinite; }
+.mock-label-on { opacity: 0; animation: mock-label-on 9s infinite; }
+.mock-label-off { opacity: 1; animation: mock-label-off 9s infinite; }
+.mock-banner { transform: translate3d(0, -100%, 0); animation: mock-banner 9s infinite; }
+.mock-kill { animation: mock-kill 9s infinite; }
+.mock-ripple { opacity: 0; transform: scale(0.2); animation: mock-ripple 9s infinite; }
+.mock-chip { opacity: 1; transform: translate3d(0, 0, 0); animation: mock-chip 9s infinite; }
+.mock[data-paused='true'] * { animation-play-state: paused; }
+
+@keyframes mock-thumb {
+  0%, 10% { transform: translate3d(0, 0, 0); animation-timing-function: cubic-bezier(0.3, 0.7, 0.2, 1); }
+  15%, 60% { transform: translate3d(20px, 0, 0); animation-timing-function: cubic-bezier(0.3, 0.7, 0.2, 1); }
+  66%, 100% { transform: translate3d(0, 0, 0); }
+}
+@keyframes mock-track {
+  0%, 10% { opacity: 0; }
+  15%, 60% { opacity: 1; }
+  66%, 100% { opacity: 0; }
+}
+@keyframes mock-label-on {
+  0%, 12% { opacity: 0; }
+  15%, 60% { opacity: 1; }
+  63%, 100% { opacity: 0; }
+}
+@keyframes mock-label-off {
+  0%, 12% { opacity: 1; }
+  15%, 60% { opacity: 0; }
+  63%, 100% { opacity: 1; }
+}
+@keyframes mock-banner {
+  0%, 19% { transform: translate3d(0, -100%, 0); animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1); }
+  26%, 58% { transform: translate3d(0, 0, 0); animation-timing-function: cubic-bezier(0.5, 0, 0.8, 0.4); }
+  64%, 100% { transform: translate3d(0, -100%, 0); }
+}
+@keyframes mock-kill {
+  0%, 52% { transform: scale(1); }
+  54.5% { transform: scale(0.92); }
+  58%, 100% { transform: scale(1); }
+}
+@keyframes mock-ripple {
+  0%, 53.5% { transform: scale(0.2); opacity: 0; }
+  54.5% { transform: scale(0.2); opacity: 0.5; }
+  62%, 100% { transform: scale(2.2); opacity: 0; }
+}
+@keyframes mock-chip {
+  0%, 66% { opacity: 0; transform: translate3d(0, 6px, 0); }
+  71%, 94% { opacity: 1; transform: translate3d(0, 0, 0); }
+  98%, 100% { opacity: 0; transform: translate3d(0, 6px, 0); }
+}
+
+/* ---------- Reduced motion: no loops, no movement, everything visible ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .aurora,
+  .aurora-blob,
+  .glow-footer,
+  .btn-sweep,
+  .hiw-pulse,
+  .mock *,
+  .mock {
+    animation: none !important;
+  }
+  .reveal,
+  .reveal[data-phase='waiting'] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .hiw[data-phase] .hiw-fill-h { transform: scaleX(1) !important; transition: none !important; }
+  .hiw[data-phase] .hiw-fill-v { transform: scaleY(1) !important; transition: none !important; }
+  .hiw[data-phase] .hiw-lit { opacity: 1 !important; transition: none !important; }
+  .btn-lift,
+  .btn-lift:hover { transform: none !important; transition: none !important; }
+  .btn-sweep { display: none; }
+  .spot-glow,
+  .spot-ring { display: none !important; }
+}
+@media (prefers-reduced-motion: reduce) and (hover: hover) and (pointer: fine) {
+  .spot-card:hover { border-color: rgb(124 92 255 / 0.55); }
 }
