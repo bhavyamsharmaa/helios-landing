@@ -1,0 +1,14 @@
+{
+  "name": "Helios",
+  "short_name": "Helios",
+  "description": "Helios separates deploying from releasing: toggle features instantly, roll out to a slice of users, and kill a bad release in under 2 seconds.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "browser",
+  "background_color": "#08080c",
+  "theme_color": "#08080c",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

@@ -1,5 +1,6 @@
 import { ArrowUpRight } from 'lucide-react'
 import { useInViewLive } from '../lib/useInView'
+import { LogoMark } from './LogoMark'
 
 const CONSOLE_URL = 'https://helios-frontend-self.vercel.app'
 const GITHUB_URL =
@@ -22,7 +23,7 @@ export function Header() {
         />
         <div className="relative mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <a href="#" className="flex items-center gap-2">
-          <span className="inline-block h-2 w-2 rounded-full bg-accent shadow-[0_0_12px_var(--color-accent)]" />
+          <LogoMark size={24} />
           <span className="text-lg font-semibold tracking-tight">Helios</span>
         </a>
 
